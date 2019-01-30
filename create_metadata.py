@@ -1,16 +1,15 @@
 import json
 from collections import defaultdict
 import HP
+import os
 
-
-def create_metadata(metadata: dict):
+def create_metadata(metadata: dict, has_text: list):
     books_metadata = list()
     f = lambda: []
     authors = defaultdict(f)
     authors_id_name = dict()
     languages = defaultdict(f)
     bookshelves = defaultdict(f)
-    has_text = list()
     for i in range(1, len(metadata['gutenberg_id'])):
         title = str(metadata['title'][i])
         author = str(metadata['author'][i])
@@ -25,9 +24,8 @@ def create_metadata(metadata: dict):
             bookshelf = []
         else:
             bookshelf = bookshelf.split('/')
-        ht = bool(metadata['has_text'][i])
         met = {"gutenberg_id": i, "title": title, "author": author, "author_id": author_id,
-               "language": language, "bookshelf": bookshelf, "has_text": ht}
+               "language": language, "bookshelf": bookshelf}
         books_metadata.append(met)
         authors[author].append(i)
         authors_id_name[author] = author_id
@@ -36,23 +34,37 @@ def create_metadata(metadata: dict):
             languages[lan].append(i)
         for bs in bookshelf:
             bookshelves[bs].append(i)
-        if ht:
-            has_text.append(i)
-    others_metadata = {"authors": dict(authors), "authors_id_name": authors_id_name,
-                       "languages": dict(languages), "bookshelves": dict(bookshelves),
-                       "has_text": has_text}
-    return books_metadata, others_metadata
+
+    features_metadata = {"authors": dict(authors), "authors_id_name": authors_id_name,
+                       "languages": dict(languages), "bookshelves": dict(bookshelves)}
+    return books_metadata, features_metadata
+
+def has_text(books_metadata: list, features_metadata: dict):
+    ht = []
+    for met in books_metadata:
+        flag = False
+        i = met["gutenberg_id"]
+        path = HP.BOOKS_DIR + str(i) + ".txt"
+        if os.path.isfile(path):
+            with open(path, 'r', encoding='utf-8') as f:
+                text = f.read()
+            if text != "":
+                flag = True
+        met["has_text"] = flag
+        if flag:
+            ht.append(i)
+    features_metadata["has_text"] = ht
 
 
 if __name__ == "__main__":
     with open(HP.BASE_METADATA, 'r') as f:
         metadata = json.load(f)
-
-    books_metadata, others_metadada = create_metadata(metadata)
+    books_metadata, features_metadata = create_metadata(metadata)
+    has_text(books_metadata, features_metadata)
     with open(HP.BOOKS_METADATA, 'w') as f:
         json.dump(books_metadata, f)
     with open(HP.FEATURES_METADATA, 'w') as f:
-        json.dump(others_metadada, f)
+        json.dump(features_metadata, f)
 
 
 

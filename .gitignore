@@ -1,5 +1,7 @@
 .idea
 __pycache__
 *.ipynb
-.ipynb_checkpoint
+.ipynb_checkpoints
 metadata
+*.pyc
+books

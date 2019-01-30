@@ -74,12 +74,6 @@ def get_books(author=None, language=None, bookshelf=None, has_text=True):
     return list(books)
 
 
-def get_keys(feature):
-    with open(HP.FEATURES_METADATA, 'r') as f:
-        features_metadata = json.load(f)
-    return list(features_metadata[feature].keys())
-
-
 def get_features():
     with open(HP.FEATURES_METADATA, 'r') as f:
         features_metadata = json.load(f)
@@ -87,7 +81,7 @@ def get_features():
 
 
 def get_keys():
-    return HP.keys.copy()
+    return dict(zip(HP.keys, range(len(HP.keys))))
 
 def get_paragraphs_metadata(par_ids = None):
     metadata = np.loadtxt(HP.PARAGRAPH_METADATA, dtype=int)
@@ -99,9 +93,8 @@ def get_paragraphs_metadata(par_ids = None):
 
 def get_paragraphs_id(books=None, is_analysed=True, sents_num=None, words_num=None,
                       tokens_num=None, has_dialogue=None, whole_dialogue=None, output_local_id=True):
-    metadata = np.loadtxt(HP.PARAGRAPH_METADATA, dtype=np.int16)
+    metadata = np.load(HP.PARAGRAPH_METADATA)
     keys = get_keys()
-    keys = dict(zip(keys, range(len(keys))))
 
     x = is_analysed
     x_name = "is_analysed"
@@ -195,7 +188,6 @@ def get_local_ids(pars):
         pars = sum([p for p in pars.values()], [])
     metadata = np.loadtxt(HP.PARAGRAPH_METADATA, dtype=int)
     keys = get_keys()
-    keys = dict(zip(keys, range(len(keys))))
     pars = np.array(pars, dtype=int) - 1
     metadata = metadata[pars]
     vec = metadata[:, keys["book_id"]]
@@ -210,7 +202,6 @@ def get_local_ids(pars):
 def get_global_ids(local_id):
     metadata = np.loadtxt(HP.PARAGRAPH_METADATA, dtype=int)
     keys = get_keys()
-    keys = dict(zip(keys, range(len(keys))))
     vec = metadata[:, keys["book_id"]]
     global_ids = metadata[:, keys["global_id"]]
     output = dict()
@@ -247,7 +238,6 @@ def get_local_global_dict(books=None):
     result = dict()
     metadata = get_paragraphs_metadata()
     keys = get_keys()
-    keys = dict(zip(keys, range(len(keys))))
     features = np.array([keys["global_id"], keys["local_id"], keys["book_id"]])
     metadata = metadata[:, features]
     for book in books:
@@ -259,14 +249,12 @@ def get_local_global_dict(books=None):
 def get_global_local_dict(pars=None):
     metadata = get_paragraphs_metadata()
     keys = get_keys()
-    keys = dict(zip(keys, range(len(keys))))
     features = np.array([keys["global_id"], keys["local_id"], keys["book_id"]])
     metadata = metadata[:, features]
     if pars is not None:
         pars = np.array(pars) - 1
         metadata = metadata[:, pars]
-    return {par: (book, loc) for par, loc, book in metadata}   
-
+    return {par: (book, loc) for par, loc, book in metadata}
 
 
 def get_paragraph_text(ids, num_sequential=1):
@@ -286,7 +274,6 @@ def get_paragraph_text(ids, num_sequential=1):
         paragraphs = paragraphs + [(met[p], text[p]) for p in pps]
     paragraphs = dict(paragraphs)
     return paragraphs, local_global
-
 
 
 
