@@ -3,6 +3,7 @@ from collections import defaultdict
 import HP
 import os
 
+
 def create_metadata(metadata: dict):
     books_metadata = list()
     f = lambda: []
@@ -38,6 +39,7 @@ def create_metadata(metadata: dict):
     features_metadata = {"authors": dict(authors), "authors_id_name": authors_id_name,
                        "languages": dict(languages), "bookshelves": dict(bookshelves)}
     return books_metadata, features_metadata
+
 
 def has_text(books_metadata: list, features_metadata: dict):
     ht = []
