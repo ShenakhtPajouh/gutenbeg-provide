@@ -164,9 +164,8 @@ def get_paragraphs_id(books=None, is_analysed=True, sents_num=None, words_num=No
     """
     metadata = np.load(HP.PARAGRAPH_METADATA)
     keys = get_keys()
-
+    vec = metadata[:, keys["is_analysed"]]
     if not is_analysed:
-        vec = metadata[:, keys["is_analysed"]]
         vec0 = vec == 0
         not_analysed_metadata = metadata[vec0]
 
@@ -286,7 +285,7 @@ def get_global_ids(local_id):
     return output
 
 
-def get_paragraphs_ids_n(n: int, books=None, is_analysed=True, sents_num=None, words_num=None,
+def get_paragraphs_ids_n(n, books=None, is_analysed=True, sents_num=None, words_num=None,
                          tokens_num=None, has_dialogue=None, whole_dialogue=None):
     """
 
@@ -366,7 +365,7 @@ def get_paragraph_text(local_ids, num_sequential=1):
     paragraphs = list()
     local_global = get_local_global_dict(list(local_ids))
     for book, pars in local_ids.items():
-        with open(HP.BOOKS_DIR + str(book) + ".txt", 'r') as f:
+        with open(HP.BOOKS_DIR + str(book) + ".txt", 'r', encoding='utf-8') as f:
             text = f.read()
         text = [p for p in text.split("\n\n") if p != ""]
         if num_sequential == 1:
