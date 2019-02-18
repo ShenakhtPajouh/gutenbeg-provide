@@ -164,13 +164,6 @@ def get_paragraphs_id(books=None, is_analysed=True, sents_num=None, words_num=No
     """
     metadata = np.load(HP.PARAGRAPH_METADATA)
     keys = get_keys()
-    vec = metadata[:, keys["is_analysed"]]
-    if not is_analysed:
-        vec0 = vec == 0
-        not_analysed_metadata = metadata[vec0]
-
-    vec = vec == 1
-    metadata = metadata[vec]
 
     if books is not None:
         vec = metadata[:, keys["book_id"]]
@@ -182,6 +175,14 @@ def get_paragraphs_id(books=None, is_analysed=True, sents_num=None, words_num=No
         vec = np.any(vec, 1)
         metadata = metadata[vec]
         bks = None
+
+    vec = metadata[:, keys["is_analysed"]]
+    if not is_analysed:
+        vec0 = vec == 0
+        not_analysed_metadata = metadata[vec0]
+
+    vec = vec == 1
+    metadata = metadata[vec]
 
     x = sents_num
     x_name = "sents_num"
