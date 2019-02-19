@@ -166,15 +166,11 @@ def get_paragraphs_id(books=None, is_analysed=True, sents_num=None, words_num=No
     keys = get_keys()
 
     if books is not None:
-        vec = metadata[:, keys["book_id"]]
-        vec = np.expand_dims(vec, 1)
-        bks = np.array(books, dtype=np.int32)
-        if bks.ndim != 1:
-            raise AttributeError("books must be a list of integers")
-        vec = vec == bks
-        vec = np.any(vec, 1)
-        metadata = metadata[vec]
-        bks = None
+        book_id = metadata[:, keys["book_id"]]
+        vec = np.zeros(shape=book_id.shape, dtype=bool)
+        for bk in books:
+            vec = np.logical_or(vec, book_id == bk)
+        metadata = metadata[:, vec]
 
     vec = metadata[:, keys["is_analysed"]]
     if not is_analysed:
